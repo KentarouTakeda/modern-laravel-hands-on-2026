@@ -24,7 +24,16 @@ export default defineConfig({
             presets: [reactCompilerPreset()],
         }),
         tailwindcss(),
-        wayfinder(),
+        wayfinder({
+            patterns: [
+                // default settings of vite-plugin-wayfinder
+                'app/**/Http/**/*.php',
+                'routes/**/*.php',
+                // additional settings
+                'app/Enums/**/*.php',
+                'app/Models/**/*.php',
+            ],
+        }),
     ]),
     server: {
         watch: {
