@@ -1,5 +1,7 @@
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Sparkles, Trash2 } from 'lucide-react';
+import Heading from '@/components/heading';
+import ProposalReviewCard from '@/components/proposal-review-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,12 +13,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { Spinner } from '@/components/ui/spinner';
 import ProposalController from '@/wayfinder/App/Http/Controllers/ProposalController';
+import ProposalReviewController from '@/wayfinder/App/Http/Controllers/ProposalReviewController';
 import { ProposalTypeMeta } from '@/wayfinder/App/Enums/ProposalType';
 import type { Inertia } from '@/wayfinder/types';
 
 export default function ProposalsShow({
     proposal,
+    reviews,
 }: Inertia.Pages.Proposals.Show) {
     setLayoutProps({
         breadcrumbs: [
@@ -93,6 +98,40 @@ export default function ProposalsShow({
                         </DialogContent>
                     </Dialog>
                 </div>
+
+                <section className="space-y-4 border-t pt-6">
+                    <div className="flex items-start justify-between gap-4">
+                        <Heading
+                            variant="small"
+                            title="AI講評"
+                            description="AIがプロポーザルを講評し、結果を保存します"
+                        />
+                        <Form
+                            {...ProposalReviewController.store.form(proposal)}
+                            options={{ preserveScroll: true }}
+                        >
+                            {({ processing }) => (
+                                <Button variant="outline" disabled={processing}>
+                                    {processing ? <Spinner /> : <Sparkles />}
+                                    {processing ? '講評中…' : '講評してもらう'}
+                                </Button>
+                            )}
+                        </Form>
+                    </div>
+
+                    {reviews.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                            まだ講評はありません。
+                        </p>
+                    ) : (
+                        reviews.map((review) => (
+                            <ProposalReviewCard
+                                key={review.id}
+                                review={review}
+                            />
+                        ))
+                    )}
+                </section>
             </div>
         </>
     );

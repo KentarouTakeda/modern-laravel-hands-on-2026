@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\ProposalType;
 use App\Models\Proposal;
+use App\Models\ProposalReview;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -86,9 +87,11 @@ class ProposalControllerTest extends TestCase
         $this->assertDatabaseEmpty('proposals');
     }
 
-    public function test_show_displays_the_users_proposal(): void
+    public function test_show_displays_the_users_proposal_with_its_reviews(): void
     {
         $proposal = Proposal::factory()->create();
+        $review = ProposalReview::factory()->for($proposal)->create();
+        ProposalReview::factory()->create();
 
         $this->actingAs($proposal->user)
             ->get(route('proposals.show', $proposal))
@@ -96,6 +99,8 @@ class ProposalControllerTest extends TestCase
             ->assertInertia(fn (Assert $page) => $page
                 ->component('proposals/show')
                 ->where('proposal.id', $proposal->id)
+                ->has('reviews', 1)
+                ->where('reviews.0.id', $review->id)
             );
     }
 

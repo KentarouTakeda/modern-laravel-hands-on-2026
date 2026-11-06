@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProposalRequest;
 use App\Models\Proposal;
+use App\Models\ProposalReview;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -55,6 +56,11 @@ class ProposalController extends Controller
 
         return Inertia::render('proposals/show', [
             'proposal' => $proposal,
+            'reviews' => ProposalReview::query()
+                ->whereBelongsTo($proposal)
+                ->latest()
+                ->latest('id')
+                ->get(),
         ]);
     }
 
